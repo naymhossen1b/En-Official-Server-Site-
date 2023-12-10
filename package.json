@@ -2,6 +2,10 @@
   "name": "EnServerSite",
   "version": "1.0.0",
   "main": "index.js",
+  "scripts": {
+    "build": "babel src -d lib",
+    "test": "jest"
+  },
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
