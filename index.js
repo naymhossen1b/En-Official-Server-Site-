@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -34,6 +34,25 @@ async function run() {
     const categoryNameCollection = client.db("urbanHaven").collection("categories");
     const allSubCategoryCollection = client.db("urbanHaven").collection("allSubCategory");
     const allProductsCollection = client.db("urbanHaven").collection("allProducts");
+    const userCartsCollection = client.db("urbanHaven").collection("userSopCarts");
+
+    //// user product carts
+    app.delete("/deleteCarts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id)}
+      const result = await userCartsCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.get("/userCarts", async (req, res) => {
+      const result = await userCartsCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/userCarts", async (req, res) => {
+      const cart = req.body;
+      const result = await userCartsCollection.insertOne(cart);
+      res.send(result);
+    });
 
     //// All Products Collection\\\\
     app.get("/products", async (req, res) => {
