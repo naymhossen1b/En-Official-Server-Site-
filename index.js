@@ -35,16 +35,56 @@ async function run() {
     const allSubCategoryCollection = client.db("urbanHaven").collection("allSubCategory");
     const allProductsCollection = client.db("urbanHaven").collection("allProducts");
     const userCartsCollection = client.db("urbanHaven").collection("userSopCarts");
+    const ratingsCollection = client.db("urbanHaven").collection("ratings");
+
+    /// Product Ratings
+    app.get("/ratings", async (req, res) => {
+      const result = await ratingsCollection.find().toArray();
+      res.send(result);
+    });
+    app.post("/ratings", async (req, res) => {
+      const rate = req.body;
+      const result = await ratingsCollection.insertOne(rate);
+      res.send(result);
+    });
+
+    ///// product  increment and decrement\\\
+    app.put("/userCarts/increment/:id", async (req, res) => {
+      const { id } = req.params;
+      await userCartsCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { product_quantity: 1 } }
+      );
+      const updatedCartItem = await userCartsCollection.findOne({ _id: new ObjectId(id) });
+      // console.log("updatedCartItem==============>", updatedCartItem, id);
+      res.send(updatedCartItem);
+    });
+
+    app.put("/userCarts/decrement/:id", async (req, res) => {
+      try {
+        const { id } = req.params;
+        await userCartsCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { product_quantity: -1 } }
+        );
+        const updatedCartItem = await userCartsCollection.findOne({ _id: new ObjectId(id) });
+        // console.log("updatedCartItem==============>", updatedCartItem, id);
+        res.json(updatedCartItem);
+      } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
 
     //// user product carts
     app.delete("/deleteCarts/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) };
       const result = await userCartsCollection.deleteOne(query);
       res.send(result);
     });
-    app.get("/userCarts", async (req, res) => {
-      const result = await userCartsCollection.find().toArray();
+    app.get("/userCarts/:email", async (req, res) => {
+      const query = { email: req.params.email };
+      const result = await userCartsCollection.find(query).toArray();
       res.send(result);
     });
 
