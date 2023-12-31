@@ -28,7 +28,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
+    await client.connect();
 
     const userCollection = client.db("urbanHaven").collection("users");
     const categoryNameCollection = client.db("urbanHaven").collection("categories");
@@ -97,6 +97,19 @@ async function run() {
     //// All Products Collection\\\\
     app.get("/products", async (req, res) => {
       const result = await allProductsCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/products", async (req, res) => {
+      const product = req.body;
+      const result = await allProductsCollection.insertOne(product);
+      res.send(result);
+    });
+
+    app.delete("/products/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await allProductsCollection.deleteOne(query);
       res.send(result);
     });
 
