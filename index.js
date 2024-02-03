@@ -13,8 +13,8 @@ app.use(
 );
 app.use(express.json());
 
-const uri = process.env.MONGO_URL;
-// console.log(uri)
+const uri = `mongodb+srv://${process.env.APP_ID}:${process.env.APP_KEY}@firstpractice.poejscf.mongodb.net/?retryWrites=true&w=majority`;
+// console.log(uri);
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -28,13 +28,21 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const userCollection = client.db("urbanHaven").collection("users");
-    const categoryNameCollection = client.db("urbanHaven").collection("categories");
-    const allSubCategoryCollection = client.db("urbanHaven").collection("allSubCategory");
-    const allProductsCollection = client.db("urbanHaven").collection("allProducts");
-    const userCartsCollection = client.db("urbanHaven").collection("userSopCarts");
+    const categoryNameCollection = client
+      .db("urbanHaven")
+      .collection("categories");
+    const allSubCategoryCollection = client
+      .db("urbanHaven")
+      .collection("allSubCategory");
+    const allProductsCollection = client
+      .db("urbanHaven")
+      .collection("allProducts");
+    const userCartsCollection = client
+      .db("urbanHaven")
+      .collection("userSopCarts");
     const ratingsCollection = client.db("urbanHaven").collection("ratings");
 
     /// Product Ratings
@@ -55,7 +63,9 @@ async function run() {
         { _id: new ObjectId(id) },
         { $set: { product_quantity: 1 } }
       );
-      const updatedCartItem = await userCartsCollection.findOne({ _id: new ObjectId(id) });
+      const updatedCartItem = await userCartsCollection.findOne({
+        _id: new ObjectId(id),
+      });
       // console.log("updatedCartItem==============>", updatedCartItem, id);
       res.send(updatedCartItem);
     });
@@ -67,7 +77,9 @@ async function run() {
           { _id: new ObjectId(id) },
           { $set: { product_quantity: -1 } }
         );
-        const updatedCartItem = await userCartsCollection.findOne({ _id: new ObjectId(id) });
+        const updatedCartItem = await userCartsCollection.findOne({
+          _id: new ObjectId(id),
+        });
         // console.log("updatedCartItem==============>", updatedCartItem, id);
         res.json(updatedCartItem);
       } catch (error) {
@@ -139,7 +151,9 @@ async function run() {
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB! 🔥 🔥 🔥 ");
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB! 🔥 🔥 🔥 "
+    );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
